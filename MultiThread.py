@@ -5,7 +5,7 @@
 # @Site    :
 # @File    : MultiThread.py
 # @Software: Python Idle
-# @UpdateTime : 2022/05/07 
+# @UpdateTime : 2022/05/07
 import threading
 import time
 import multiprocessing
@@ -182,10 +182,7 @@ class Mymultiprocessing(MyTMultithread):
     @exc_time
     def multiprocessingOnlyUsePool(self):
         '''
-    只使用多进程,
-
-    tips:需要在main下面运行,jupyter notebook 运行会报错,每个进程创建耗时相对较大，
-       建议target 处理的输入file为list,减少进程创建消耗，filelist 长度与 进程数相同
+    使用进程池方式
         '''
         p = Pool(min(self.max_multiprocess, self.num_cpus))
 
@@ -261,11 +258,12 @@ class Mymultiprocessing(MyTMultithread):
                     # results.append(result)
                     # p.start()
                     # processes.append(p)
-        return results
+
+        return [x.get() for x in results]
 
     @exc_time
     def multiprocessingThreads(self):
-        '''在linux 下可用，winddows 下会报错'''
+        '''多进程+多线程'''
         num_process = min(self.num_cpus, self.max_multiprocess)
         DATALISTS = []
         tempmod = len(self.filelist) % (num_process)
@@ -279,9 +277,6 @@ class Mymultiprocessing(MyTMultithread):
         try:
             processes = []
             for i in range(num_process):
-                # print('wait add process:',i+1,time.perf_counter())
-                # print(eval(self.funname),DATALISTS[i])
-                # print(i, len(DATALISTS[i]), DATALISTS[i][0])
 
                 MultThread = MyTMultithread(
                     DATALISTS[i], self.delay, self.funname, self.max_threads)
@@ -294,10 +289,7 @@ class Mymultiprocessing(MyTMultithread):
                     # windows 使用下面的语句会报错 can't pickle _thread.lock objects
                     p = multiprocessing.Process(target=MultThread.startrun)
 
-                # print('pid & name:', p.pid, p.name)
                 processes.append(p)
-            # import gc
-            # gc.collect()
 
             for p in processes:
                 # print('wait join ')
